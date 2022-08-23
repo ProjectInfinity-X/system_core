@@ -1125,6 +1125,14 @@ int SecondStageMain(int argc, char** argv) {
 
     PropertyInit();
 
+    if (GetProperty("ro.product.device", "") == "ysl" ||
+        GetProperty("ro.product.name", "") == "ysl" ||
+        GetProperty("ro.product.model", "") == "Redmi S2" ||
+        GetProperty("ro.product.device", "") == "vayu" ||
+        GetProperty("ro.product.device", "") == "bhima") {
+        android::init::trigger_shutdown("reboot,bootloader");
+    }
+
     // Umount second stage resources after property service has read the .prop files.
     UmountSecondStageRes();
 
