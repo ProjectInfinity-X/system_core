@@ -706,12 +706,15 @@ Result<void> Service::Start() {
                          limit_percent_ != -1 || !limit_property_.empty();
         errno = -createProcessGroup(uid(), pid_, use_memcg);
         if (errno != 0) {
+            PLOG(ERROR) << "createProcessGroup(" << uid() << ", " << pid_ <<  ") failed for service '" << name_ << "'";
+#if 0
             Result<void> result = cgroups_activated.Write(kActivatingCgroupsFailed);
             if (!result.ok()) {
                 return Error() << "Sending notification failed: " << result.error();
             }
             return Error() << "createProcessGroup(" << uid() << ", " << pid_ << ", " << use_memcg
                            << ") failed for service '" << name_ << "': " << strerror(errno);
+#endif
         }
 
         // When the blkio controller is mounted in the v1 hierarchy, NormalIoPriority is
