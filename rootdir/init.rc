@@ -32,10 +32,14 @@ on early-init
     # memory.pressure_level used by lmkd
     chown root system /dev/memcg/memory.pressure_level
     chmod 0040 /dev/memcg/memory.pressure_level
+
     # app mem cgroups, used by activity manager, lmkd and zygote
     mkdir /dev/memcg/apps/ 0755 system system
+    write /dev/memcg/apps/memory.swappiness 100
+
     # cgroup for system_server and surfaceflinger
     mkdir /dev/memcg/system 0550 system system
+    write /dev/memcg/system/memory.swappiness 100
 
     # symlink the Android specific /dev/tun to Linux expected /dev/net/tun
     mkdir /dev/net 0755 root root
@@ -108,11 +112,13 @@ on init
     mkdir /dev/stune/background
     mkdir /dev/stune/top-app
     mkdir /dev/stune/rt
+    mkdir /dev/stune/audio-app
     chown system system /dev/stune
     chown system system /dev/stune/foreground
     chown system system /dev/stune/background
     chown system system /dev/stune/top-app
     chown system system /dev/stune/rt
+    chown system system /dev/stune/audio-app
     chown system system /dev/stune/tasks
     chown system system /dev/stune/foreground/tasks
     chown system system /dev/stune/background/tasks
@@ -123,6 +129,7 @@ on init
     chown system system /dev/stune/background/cgroup.procs
     chown system system /dev/stune/top-app/cgroup.procs
     chown system system /dev/stune/rt/cgroup.procs
+    chown system system /dev/stune/audio-app/tasks
     chmod 0664 /dev/stune/tasks
     chmod 0664 /dev/stune/foreground/tasks
     chmod 0664 /dev/stune/background/tasks
@@ -133,6 +140,7 @@ on init
     chmod 0664 /dev/stune/background/cgroup.procs
     chmod 0664 /dev/stune/top-app/cgroup.procs
     chmod 0664 /dev/stune/rt/cgroup.procs
+    chmod 0664 /dev/stune/audio-app/tasks
 
     # cpuctl hierarchy for devices using utilclamp
     mkdir /dev/cpuctl/foreground
@@ -366,12 +374,17 @@ on init
     copy /dev/cpuset/cpus /dev/cpuset/camera-daemon/cpus
     copy /dev/cpuset/mems /dev/cpuset/camera-daemon/mems
 
+    mkdir /dev/cpuset/audio-app
+    copy /dev/cpuset/cpus /dev/cpuset/audio-app/cpus
+    copy /dev/cpuset/mems /dev/cpuset/audio-app/mems
+
     # change permissions for all cpusets we'll touch at runtime
     chown system system /dev/cpuset
     chown system system /dev/cpuset/foreground
     chown system system /dev/cpuset/background
     chown system system /dev/cpuset/system-background
     chown system system /dev/cpuset/top-app
+    chown system system /dev/cpuset/audio-app
     chown system system /dev/cpuset/restricted
     chown system system /dev/cpuset/camera-daemon
     chown system system /dev/cpuset/tasks
@@ -379,6 +392,7 @@ on init
     chown system system /dev/cpuset/background/tasks
     chown system system /dev/cpuset/system-background/tasks
     chown system system /dev/cpuset/top-app/tasks
+    chown system system /dev/cpuset/audio-app/tasks
     chown system system /dev/cpuset/restricted/tasks
     chown system system /dev/cpuset/camera-daemon/tasks
     chown system system /dev/cpuset/cgroup.procs
@@ -396,6 +410,7 @@ on init
     chmod 0664 /dev/cpuset/background/tasks
     chmod 0664 /dev/cpuset/system-background/tasks
     chmod 0664 /dev/cpuset/top-app/tasks
+    chmod 0664 /dev/cpuset/audio-app/tasks
     chmod 0664 /dev/cpuset/restricted/tasks
     chmod 0664 /dev/cpuset/tasks
     chmod 0664 /dev/cpuset/camera-daemon/tasks
