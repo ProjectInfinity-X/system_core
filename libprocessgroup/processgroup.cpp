@@ -412,7 +412,7 @@ static int DoKillProcessGroupOnce(const char* cgroup, uid_t uid, int initialPid,
             // Erase all pids that will be killed when we kill the process groups.
             for (auto it = pids.begin(); it != pids.end();) {
                 pid_t pgid = getpgid(*it);
-                if (pgids.count(pgid) == 1) {
+                if (pgids.count(pgid) == 0) {
                     it = pids.erase(it);
                 } else {
                     ++it;
