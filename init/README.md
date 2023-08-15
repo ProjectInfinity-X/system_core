@@ -409,6 +409,10 @@ runs the service.
   This is particularly useful for creating a periodic service combined with the restart_period
   option described above.
 
+`uclamp <min> <max>`
+> Sets the uclamp.min and uclamp.max for this service via the sched_setattr syscall.
+  _min_ and _max_ must be an integer in the range 0 - 1024.
+
 `updatable`
 > Mark that the service can be overridden (via the 'override' option) later in
   the boot sequence by APEXes. When a service with updatable option is started

@@ -531,6 +531,19 @@ Result<void> ServiceParser::ParseFile(std::vector<std::string>&& args) {
     return {};
 }
 
+Result<void> ServiceParser::ParseUclamp(std::vector<std::string>&& args) {
+    service_->proc_attr_.uclamp_min = 0;
+    service_->proc_attr_.uclamp_max = 1024;
+    if (!ParseInt(args[1], &service_->proc_attr_.uclamp_min, 0, 1024)) {
+        return Error() << "uclamp_min value must be range 0 - 1024";
+    }
+    if (!ParseInt(args[2], &service_->proc_attr_.uclamp_max, 0, 1024)) {
+        return Error() << "uclamp_max value must be range 0 - 1024";
+    }
+
+    return {};
+}
+
 Result<void> ServiceParser::ParseUser(std::vector<std::string>&& args) {
     auto uid = DecodeUid(args[1]);
     if (!uid.ok()) {
@@ -619,6 +632,7 @@ const KeywordMap<ServiceParser::OptionParser>& ServiceParser::GetParserMap() con
         {"stdio_to_kmsg",           {0,     0,    &ServiceParser::ParseStdioToKmsg}},
         {"task_profiles",           {1,     kMax, &ServiceParser::ParseTaskProfiles}},
         {"timeout_period",          {1,     1,    &ServiceParser::ParseTimeoutPeriod}},
+        {"uclamp",                  {2,     2,    &ServiceParser::ParseUclamp}},
         {"updatable",               {0,     0,    &ServiceParser::ParseUpdatable}},
         {"user",                    {1,     1,    &ServiceParser::ParseUser}},
         {"writepid",                {1,     kMax, &ServiceParser::ParseWritepid}},

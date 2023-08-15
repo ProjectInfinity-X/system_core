@@ -98,6 +98,9 @@ struct ProcessAttributes {
     bool stdio_to_kmsg;
 
     uid_t uid() const { return parsed_uid.value_or(0); }
+    int uclamp_min;
+    int uclamp_max;
+
 };
 
 inline bool RequiresConsole(const ProcessAttributes& attr) {
