@@ -430,9 +430,13 @@ static Result<void> make_dir_with_options(const MkdirOptions& options) {
         }
     }
     if (IsFbeEnabled()) {
+        //TODO FIXME
+//01-01 06:10:54.928   477   477 E vold    : Failed to set encryption policy of /data/data to be0c03668ef1fddc v1 modes 127/4 flags 0x0: Invalid argument
+//01-01 06:10:55.927     0     0 W         : c2    477 ext4_process_policy: Policy inconsistent with encryption context
+//01-01 06:10:55.927     0     0 E         : c2    477 vold: Failed to set encryption policy of /data/data to be0c03668ef1fddc v1 modes 127/4 flags 0x0: Invalid argument
+
         if (!FscryptSetDirectoryPolicy(ref_basename, options.fscrypt_action, options.target)) {
-            return reboot_into_recovery(
-                    {"--prompt_and_wipe_data", "--reason=set_policy_failed:"s + options.target});
+            return {};
         }
     }
     return {};
