@@ -174,7 +174,8 @@ on init
     chown system system /dev/cpuctl/system/cgroup.procs
     chown system system /dev/cpuctl/system-background/cgroup.procs
     chown system system /dev/cpuctl/dex2oat/cgroup.procs
-    chmod 0664 /dev/cpuctl/tasks
+    chmod 0755 /dev/cpuctl
+    chmod 0644 /dev/cpuctl/tasks
     chmod 0664 /dev/cpuctl/foreground/tasks
     chmod 0664 /dev/cpuctl/background/tasks
     chmod 0664 /dev/cpuctl/top-app/tasks
