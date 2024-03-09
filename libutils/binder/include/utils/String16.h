@@ -189,11 +189,7 @@ protected:
     explicit constexpr String16(const StaticData<N>& s) : mString(s.data) {}
 
 // These symbols are for potential backward compatibility with prebuilts. To be removed.
-#ifdef ENABLE_STRING16_OBSOLETE_METHODS
 public:
-#else
-private:
-#endif
     inline  const char16_t*     string() const;
 };
 

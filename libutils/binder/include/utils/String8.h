@@ -149,11 +149,7 @@ private:
             const char* mString;
 
 // These symbols are for potential backward compatibility with prebuilts. To be removed.
-#ifdef ENABLE_STRING8_OBSOLETE_METHODS
 public:
-#else
-private:
-#endif
     inline  const char*         string() const;
     inline  bool                isEmpty() const;
 };
