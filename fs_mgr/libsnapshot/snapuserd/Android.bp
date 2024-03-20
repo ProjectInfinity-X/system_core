@@ -159,6 +159,7 @@ cc_binary {
         "libsnapuserd_client",
     ],
     ramdisk_available: false,
+    recovery_available: true,
     vendor_ramdisk_available: true,
 }
 
