@@ -374,8 +374,7 @@ bool RemountPartition(Fstab& fstab, Fstab& mounts, FstabEntry& entry) {
     fs_mgr_set_blk_ro(blk_device, false);
 
     // Find system-as-root mount point?
-    if ((mount_point == "/system" || mount_point == "/system_root") &&
-        !GetEntryForMountPoint(&mounts, mount_point) &&
+    if ((mount_point == "/system") && !GetEntryForMountPoint(&mounts, mount_point) &&
         GetEntryForMountPoint(&mounts, "/")) {
         mount_point = "/";
     }
