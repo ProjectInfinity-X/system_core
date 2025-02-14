@@ -1307,12 +1307,12 @@ on property:security.perf_harden=1 && property:sys.init.perf_lsm_hooks=""
 # sysprops to be able to indirectly set these sysctls.
 on property:security.perf_harden=0
     write /proc/sys/kernel/perf_event_max_sample_rate ${debug.perf_event_max_sample_rate:-100000}
-    write /proc/sys/kernel/perf_cpu_time_max_percent ${debug.perf_cpu_time_max_percent:-25}
+    write /proc/sys/kernel/perf_cpu_time_max_percent 1
     write /proc/sys/kernel/perf_event_mlock_kb ${debug.perf_event_mlock_kb:-516}
 # Default values.
 on property:security.perf_harden=1
     write /proc/sys/kernel/perf_event_max_sample_rate 100000
-    write /proc/sys/kernel/perf_cpu_time_max_percent 25
+    write /proc/sys/kernel/perf_cpu_time_max_percent 1
     write /proc/sys/kernel/perf_event_mlock_kb 516
 
 # This property can be set only on userdebug/eng. See neverallow rule in
