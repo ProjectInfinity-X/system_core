@@ -1393,9 +1393,9 @@ on property:sys.snapshotctl.map=requested
 on property:sys.snapshotctl.unmap=requested
     exec - root root system -- /system/bin/snapshotctl unmap
     setprop sys.snapshotctl.unmap "finished"
-
-on property:persist.sys.battery_health_limit_charge=true
-  write /sys/devices/platform/google,charger/charge_stop_level 80
+  
+on property:persist.sys.battery_health_limit_charge=true && property:persist.sys.battery_health_limit_bypass_level=*
+  write /sys/devices/platform/google,charger/charge_stop_level ${persist.sys.battery_health_limit_bypass_level:-80}
   
 on property:persist.sys.battery_health_limit_charge=false
   write /sys/devices/platform/google,charger/charge_stop_level 100
