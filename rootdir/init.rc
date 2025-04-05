@@ -1399,3 +1399,11 @@ on property:persist.sys.battery_health_limit_charge=true && property:persist.sys
   
 on property:persist.sys.battery_health_limit_charge=false
   write /sys/devices/platform/google,charger/charge_stop_level 100
+  
+on property:persist.sys.battery_bypass_supported=true && property:persist.sys.battery_health_bypass_enabled=true
+  write /sys/class/power_supply/battery/input_suspend 1
+  write /sys/class/qcom-battery/input_suspend 1
+  
+on property:persist.sys.battery_bypass_supported=true && property:persist.sys.battery_health_bypass_enabled=false
+  write /sys/class/power_supply/battery/input_suspend 0
+  write /sys/class/qcom-battery/input_suspend 0
