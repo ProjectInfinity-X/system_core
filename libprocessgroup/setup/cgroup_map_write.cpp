@@ -25,6 +25,7 @@
 #include <sys/mount.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/utsname.h>
 #include <unistd.h>
 
 #include <android-base/logging.h>
@@ -180,6 +181,18 @@ static bool ActivateV2CgroupController(const CgroupDescriptor& descriptor) {
     return ::ActivateControllers(controller->path(), {{controller->name(), descriptor}});
 }
 
+static bool IsCpusetV2ModeEnabled() {
+    struct utsname uts;
+    unsigned int major;
+
+    if (uname(&uts) != 0 || sscanf(uts.release, "%u", &major) != 1) {
+        LOG(ERROR) << "Could not parse the kernel version from uname";
+        return false;
+    }
+
+    return (major >= 5);
+}
+
 static bool MountV1CgroupController(const CgroupDescriptor& descriptor) {
     const CgroupController* controller = descriptor.controller();
 
@@ -188,26 +201,53 @@ static bool MountV1CgroupController(const CgroupDescriptor& descriptor) {
         LOG(ERROR) << "Failed to create directory for " << controller->name() << " cgroup";
         return false;
     }
+    
+    if (IsCpusetV2ModeEnabled()) {
+        std::string options = controller->name();
 
-    std::string options = controller->name();
-
-    if (!strcmp(controller->name(), "cpuset")) {
-        // Android depends on the noprefix option for cpuset so that cgroupfs files are not prefixed
-        // with the controller name. For example /dev/cpuset/cpus instead of
-        //                                       /dev/cpuset/cpuset.cpus.
-        // cpuset_v2_mode is required to restore the original cpu mask after a cpu is offlined, and
-        // then onlined in cgroup v1.
-        options += ",noprefix,cpuset_v2_mode";
-    }
-
-    if (mount("none", controller->path(), "cgroup", MS_NODEV | MS_NOEXEC | MS_NOSUID,
-              options.c_str())) {
-        if (IsOptionalController(controller)) {
-            PLOG(INFO) << "Failed to mount optional controller " << controller->name();
-            return true;
+        if (!strcmp(controller->name(), "cpuset")) {
+            // Android depends on the noprefix option for cpuset so that cgroupfs files are not prefixed
+            // with the controller name. For example /dev/cpuset/cpus instead of
+            //                                       /dev/cpuset/cpuset.cpus.
+            // cpuset_v2_mode is required to restore the original cpu mask after a cpu is offlined, and
+            // then onlined in cgroup v1.
+            options += ",noprefix,cpuset_v2_mode";
         }
-        PLOG(ERROR) << "Failed to mount controller " << controller->name();
-        return false;
+
+        if (mount("none", controller->path(), "cgroup", MS_NODEV | MS_NOEXEC | MS_NOSUID,
+                  options.c_str())) {
+            if (IsOptionalController(controller)) {
+                PLOG(INFO) << "Failed to mount optional controller " << controller->name();
+                return true;
+            }
+            PLOG(ERROR) << "Failed to mount controller " << controller->name();
+            return false;
+        }
+    } else {
+        // Unfortunately historically cpuset controller was mounted using a mount command
+        // different from all other controllers. This results in controller attributes not
+        // to be prepended with controller name. For example this way instead of
+        // /dev/cpuset/cpuset.cpus the attribute becomes /dev/cpuset/cpus which is what
+        // the system currently expects.
+        int res;
+        if (!strcmp(controller->name(), "cpuset")) {
+            // mount cpuset none /dev/cpuset nodev noexec nosuid
+            res = mount("none", controller->path(), controller->name(),
+                        MS_NODEV | MS_NOEXEC | MS_NOSUID, nullptr);
+        } else {
+            // mount cgroup none <path> nodev noexec nosuid <controller>
+            res = mount("none", controller->path(), "cgroup", MS_NODEV | MS_NOEXEC | MS_NOSUID,
+                        controller->name());
+        }
+        
+        if (res != 0) {
+            if (IsOptionalController(controller)) {
+                PLOG(INFO) << "Failed to mount optional controller " << controller->name();
+                return true;
+            }
+            PLOG(ERROR) << "Failed to mount controller " << controller->name();
+            return false;
+        }
     }
     return true;
 }
