@@ -335,7 +335,18 @@ cc_defaults {
     symlinks: ["ueventd"],
 }
 
-cc_binary {
+soong_config_module_type {
+    name: "init_second_stage_cc_binary",
+    module_type: "cc_binary",
+    config_namespace: "ANDROID",
+    bool_variables: ["BOARD_USES_RECOVERY_AS_BOOT"],
+    properties: [
+        "srcs",
+        "cflags",
+    ],
+}
+
+init_second_stage_cc_binary {
     name: "init_second_stage",
     defaults: ["init_second_stage_defaults"],
     static_libs: ["libinit"],
@@ -349,6 +360,16 @@ cc_binary {
         "mke2fs",
         "sload_f2fs",
     ],
+    soong_config_variables: {
+        BOARD_USES_RECOVERY_AS_BOOT: {
+            srcs: [
+                "first_stage_init.cpp",
+                "first_stage_mount.cpp",
+                "first_stage_mount_android.cpp",
+            ],
+            cflags: ["-DFIRST_STAGE_INIT=1"],
+        },
+    },
 }
 
 cc_binary {
